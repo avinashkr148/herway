@@ -1,25 +1,44 @@
 {
   "expo": {
-    "name": "herway-app",
-    "slug": "herway-app",
+    "name": "HerWay",
+    "slug": "herway",
+    "scheme": "herway",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "ios": {
-      "supportsTablet": true
-    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "isAndroidBackgroundLocationEnabled": true,
+          "locationAlwaysAndWhenInUsePermission": "HerWay shares your live location with trusted contacts during a trip."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "HerWay accesses photos only when you choose to attach them to completed-trip feedback.",
+          "microphonePermission": false
+        }
+      ],
+      "expo-status-bar"
+    ],
     "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
-      },
-      "predictiveBackGestureEnabled": false
+      "package": "com.herway.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION"
+      ]
+    },
+    "ios": {
+      "bundleIdentifier": "com.herway.app"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "bundler": "metro"
     }
   }
 }

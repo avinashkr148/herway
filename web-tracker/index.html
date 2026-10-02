@@ -1,0 +1,30 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HerWay Live Trip</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>body{margin:0;font-family:system-ui}#bar{padding:12px;background:#7C3AED;color:#fff}#map{height:calc(100vh - 48px)}</style>
+</head><body>
+<div id="bar">HerWay: loading trip…</div><div id="map"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Fill in your project values (the anon key is safe to expose; access is limited by get_shared_trip).
+  const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co', ANON_KEY = 'YOUR-ANON-KEY';
+  const token = new URLSearchParams(location.search).get('t');
+  const db = supabase.createClient(SUPABASE_URL, ANON_KEY);
+  const map = L.map('map').setView([12.97, 77.59], 14);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+  let marker, line;
+  async function refresh() {
+    const { data } = await db.rpc('get_shared_trip', { p_token: token });
+    if (!data || !data.length) { bar.textContent = 'Waiting for location…'; return; }
+    const pts = data.map(p => [p.lat, p.lng]).reverse(), last = data[0];
+    marker ? marker.setLatLng(pts.at(-1)) : marker = L.marker(pts.at(-1)).addTo(map);
+    line ? line.setLatLngs(pts) : line = L.polyline(pts, { color: '#7C3AED' }).addTo(map);
+    map.setView(pts.at(-1));
+    bar.textContent = (last.status === 'active' ? 'Live' : 'Trip ended') + ' · updated ' + new Date(last.ts).toLocaleTimeString();
+  }
+  const bar = document.getElementById('bar');
+  refresh(); setInterval(refresh, 8000);
+</script></body></html>
