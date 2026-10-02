@@ -31,7 +31,7 @@ function DueChart({ records, now, odometerKm }: { records: any[]; now: number; o
   const segments = [{ value: summary.good, color: '#16A34A' }, { value: summary.soon, color: '#D97706' }, { value: summary.overdue, color: theme.danger }];
   return <Card><H>Service due overview</H><View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
     <Svg width={110} height={110} viewBox="0 0 110 110"><Circle cx="55" cy="55" r={radius} stroke={theme.border} strokeWidth="18" fill="none" />
-      {total > 0 && segments.map((segment, index) => { const length = circumference * segment.value / total; const circle = <Circle key={index} cx="55" cy="55" r={radius} stroke={segment.color} strokeWidth="18" fill="none" strokeDasharray={`${length} ${circumference - length}`} strokeDashoffset={-offset} rotation="-90" origin="55,55" />; offset += length; return circle; })}
+      {total > 0 && segments.map((segment, index) => { const length = circumference * segment.value / total; const circle = <Circle key={index} cx="55" cy="55" r={radius} stroke={segment.color} strokeWidth="18" fill="none" strokeDasharray={`${length} ${circumference - length}`} strokeDashoffset={-offset} transform="rotate(-90 55 55)" />; offset += length; return circle; })}
     </Svg><View style={{ flex: 1 }}><Text style={{ color: theme.text, fontWeight: '800' }}>{total ? `${total} recorded service${total === 1 ? '' : 's'}` : 'No services logged'}</Text>
       <Text style={{ color: '#16A34A', marginTop: 4 }}>● {summary.good} on track</Text><Text style={{ color: '#D97706' }}>● {summary.soon} due within 30 days</Text><Text style={{ color: theme.danger }}>● {summary.overdue} overdue</Text>
     </View></View></Card>;

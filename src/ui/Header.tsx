@@ -10,9 +10,9 @@ export default function Header() {
   const router = useRouter();
   useEffect(() => { getDeviceId().then(setId); }, []);
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 48, paddingHorizontal: 16, paddingBottom: 10, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: theme.border }}>
-      <Text style={{ color: theme.text, fontWeight: '700' }}>Device ID: {id}</Text>
-      <Pressable onPress={() => router.push('/profile')}><Ionicons name="person-circle" size={32} color={theme.primary} /></Pressable>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 48, paddingHorizontal: 18, paddingBottom: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#EEE9F7' }}>
+      <View><Text style={{ color: theme.text, fontWeight: '900', fontSize: 18 }}>HerWay</Text><Text style={{ color: theme.muted, fontSize: 11, marginTop: 1 }}>Device ID: {id}</Text></View>
+      <Pressable onPress={() => router.push('/profile')} style={{ padding: 2 }}><Ionicons name="person-circle" size={34} color={theme.primary} /></Pressable>
     </View>
   );
 }

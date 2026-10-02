@@ -2,11 +2,11 @@ import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { features } from '@/core/registry';
 import Header from '@/ui/Header';
-import { theme } from '@/ui/theme';
+import AppTabBar from '@/ui/AppTabBar';
 
 export default function AppLayout() {
   return (
-    <Tabs screenOptions={{ header: () => <Header />, tabBarActiveTintColor: theme.primary }}>
+    <Tabs tabBar={(props) => <AppTabBar {...props} />} screenOptions={{ header: () => <Header /> }}>
       {features.map((f) => (
         <Tabs.Screen key={f.key} name={f.route} options={{
           title: f.title,

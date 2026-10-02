@@ -8,14 +8,14 @@ let webWatcher: Location.LocationSubscription | null = null;
 
 export const trackingLink = (token: string) => `${process.env.EXPO_PUBLIC_TRACKER_URL}/?t=${token}`;
 
-export async function startTrip(destination?: string) {
+export async function startTrip(origin?: string, destination?: string) {
   const fg = await Location.requestForegroundPermissionsAsync();
   if (fg.status !== 'granted') throw new Error('Location permission needed');
   if (Platform.OS !== 'web') await Location.requestBackgroundPermissionsAsync();
 
   const { data: { user } } = await supabase.auth.getUser();
   const { data: trip, error } = await supabase.from('trips')
-    .insert({ user_id: user!.id, destination }).select().single();
+    .insert({ user_id: user!.id, origin: origin?.trim() || null, destination: destination?.trim() || null }).select().single();
   if (error) throw error;
   await storage.setItem('active_trip_id', trip.id);
 
