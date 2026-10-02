@@ -8,7 +8,11 @@ export default function PlaceList({ kind }: { kind: PlaceKind }) {
   const [loading, setLoading] = useState(false);
   const load = async () => {
     setLoading(true);
-    try { setPlaces(await findNearby(kind)); } catch (e: any) { Alert.alert('Error', e.message); }
+    try {
+      const results = await findNearby(kind);
+      setPlaces(results);
+      if (!results.length) Alert.alert('No nearby results', 'Try again shortly or search from a different location.');
+    } catch (e: any) { Alert.alert('Nearby search', e.message); }
     finally { setLoading(false); }
   };
   return (

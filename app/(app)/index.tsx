@@ -5,7 +5,7 @@ import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { Button, Card, Input, H } from '@/ui/kit';
 import { theme } from '@/ui/theme';
-import { startTrip, endTrip } from '@/features/trip-sharing/api';
+import { getActiveTrip, startTrip, endTrip } from '@/features/trip-sharing/api';
 import TripFeedbackForm from '@/features/community/TripFeedbackForm';
 import { submitTripFeedback } from '@/features/community/api';
 import { DestinationSuggestion, searchDestinations } from '@/features/trip-sharing/destinations';
@@ -21,7 +21,21 @@ export default function Home() {
   const [completedTrip, setCompletedTrip] = useState<{ id: string; destination: string | null } | null>(null);
   const [starting, setStarting] = useState(false);
   const [ending, setEnding] = useState(false);
+  const [restoringTrip, setRestoringTrip] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    getActiveTrip()
+      .then((trip) => {
+        if (!trip) return;
+        setOrigin(trip.origin ?? 'Current location');
+        setDest(trip.destination ?? '');
+        setSelectedDestination(trip.destination ? { id: trip.id, label: trip.destination } : null);
+        setLink(trip.link);
+      })
+      .catch((error: any) => Alert.alert('Trip status', error.message))
+      .finally(() => setRestoringTrip(false));
+  }, []);
 
   useEffect(() => {
     if (selectedDestination || dest.trim().length < 3 || link || completedTrip) {
@@ -88,8 +102,13 @@ export default function Home() {
           {suggestions.map((place) => <Pressable key={place.id} onPress={() => { setSelectedDestination(place); setDest(place.label); setSuggestions([]); }} style={{ padding: 12, borderBottomWidth: 1, borderBottomColor: theme.border }}><Text style={{ color: theme.text }}>{place.label}</Text></Pressable>)}
         </View>}
         <Text style={{ color: theme.muted, marginTop: 8 }}>{selectedDestination ? `Trip: ${origin || 'Start location'} → ${selectedDestination.label}` : 'Search and select your final destination before starting.'}</Text>
-        {!link && !completedTrip && <Button title={starting ? 'Starting trip…' : 'Plan & start live trip'} onPress={start} disabled={starting} />}
+        {!link && !completedTrip && <Button title={restoringTrip ? 'Checking active trip…' : (starting ? 'Starting trip…' : 'Plan & start live trip')} onPress={start} disabled={starting || restoringTrip} />}
       </Card>
+      {!!link && <Card>
+        <H>Live trip sharing</H>
+        <Text style={{ color: theme.muted }}>From</Text><Text style={{ color: theme.text, fontWeight: '700' }}>{origin}</Text><Text style={{ color: theme.muted, marginTop: 8 }}>To</Text><Text style={{ color: theme.text, fontWeight: '700' }}>{selectedDestination?.label ?? dest}</Text>
+        <Text selectable style={{ color: theme.primary, marginTop: 12 }}>{link}</Text><Text style={{ color: theme.muted, marginTop: 5 }}>You choose when and who to share this live link with.</Text><Button title="Share live trip" onPress={shareTrip} /><Button title={ending ? 'Ending trip…' : 'End trip'} danger onPress={end} disabled={ending} />
+      </Card>}
       <View style={{ backgroundColor: '#2D1B69', borderRadius: 22, padding: 18, marginVertical: 10, overflow: 'hidden' }}>
         <View style={{ position: 'absolute', width: 150, height: 150, borderRadius: 75, backgroundColor: '#4C2D9B', right: -48, top: -58 }} />
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: '#A78BFA', alignItems: 'center', justifyContent: 'center' }}><Ionicons name="shield-checkmark" size={21} color="#2D1B69" /></View><Text style={{ color: '#EDE9FE', fontWeight: '800', fontSize: 13, letterSpacing: 1 }}>BEFORE YOU GO</Text></View>
@@ -99,11 +118,6 @@ export default function Home() {
           {['Helmet / seat belt', 'Phone charged', 'Vehicle checked'].map((item) => <View key={item} style={{ borderRadius: 16, paddingHorizontal: 10, paddingVertical: 7, backgroundColor: '#49308D' }}><Text style={{ color: '#F5F3FF', fontSize: 12, fontWeight: '700' }}>{item}</Text></View>)}
         </View>
       </View>
-      {!!link && <Card>
-        <H>Live trip sharing</H>
-        <Text style={{ color: theme.muted }}>From</Text><Text style={{ color: theme.text, fontWeight: '700' }}>{origin}</Text><Text style={{ color: theme.muted, marginTop: 8 }}>To</Text><Text style={{ color: theme.text, fontWeight: '700' }}>{selectedDestination?.label ?? dest}</Text>
-        <Text selectable style={{ color: theme.primary, marginTop: 12 }}>{link}</Text><Text style={{ color: theme.muted, marginTop: 5 }}>You choose when and who to share this live link with.</Text><Button title="Share live trip" onPress={shareTrip} /><Button title={ending ? 'Ending trip…' : 'End trip'} danger onPress={end} disabled={ending} />
-      </Card>}
       {!!completedTrip && <TripFeedbackForm destination={completedTrip.destination} onSkip={() => setCompletedTrip(null)} onSubmit={async (answers, photoUris) => { await submitTripFeedback(completedTrip, answers, photoUris); setCompletedTrip(null); router.push('/community'); }} />}
     </ScrollView>
   );
